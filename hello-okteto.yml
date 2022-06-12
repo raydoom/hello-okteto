@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-okteto
+  labels:
+    app: hello-okteto
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello-okteto
+  template:
+    metadata:
+      labels:
+        app: hello-okteto
+    spec:
+      containers:
+        - name: hello-okteto
+          image: raydoom/v2ray-ws-docker
+          env:
+          - name: uuid
+            value: [uuid]
+          ports:
+          - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-okteto
+spec:
+  selector:
+    app: hello-okteto
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    dev.okteto.com/generate-host: "true"
+  name: hello-okteto
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: hello-okteto
+          servicePort: 80
+        path: /
